@@ -237,6 +237,8 @@ services:
           echo
         fi
         mkdir -p /sources/logs /sources/dags /sources/plugins
+        chmod u+x /sources/scripts/create_connection.sh
+        bash /sources/scripts/create_connection.sh
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
