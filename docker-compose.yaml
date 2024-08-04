@@ -64,9 +64,18 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__HIDE_SENSITIVE_VAR_CONN_FIELDS: 'false'
     AIRFLOW__CORE__TEST_CONNECTION: 'Enabled'
+    AIRFLOW__EMAIL__DEFAULT_EMAIL_ON_FAILURE: true
+    AIRFLOW__EMAIL__DEFAULT_EMAIL_ON_RETRY: true
+    AIRFLOW__EMAIL__SSL_CONTEXT: false
+    AIRFLOW__SMTP__SMTP_STARTTLS: true
+    AIRFLOW__SMTP__SMTP_SSL: false
+    AIRFLOW__SMTP__SMTP_HOST: smtp.mailersend.net
+    AIRFLOW__SMTP__SMTP_USER: 'MS_sIX2Rm@somosyoung.com.br'
+    AIRFLOW__SMTP__SMTP_PASSWORD: 'ty8IvsmHa3Sdbk01'
+    AIRFLOW__SMTP__SMTP_PORT: 587
+    AIRFLOW__SMTP__SMTP_MAIL_FROM: MS_sIX2Rm@somosyoung.com.br
+    AIRFLOW_CONN_SMTP_DEFAULT: smtp://MS_sIX2Rm@somosyoung.com.br:ty8IvsmHa3Sdbk01@smtp.mailersend.net:587
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    DW_LOGIN: admin
-    DW_PASSWORD: admin
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/src:/opt/airflow/src
     - ${AIRFLOW_PROJ_DIR:-.}/src/dags:/opt/airflow/dags
@@ -75,6 +84,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
     - ${AIRFLOW_PROJ_DIR:-.}/scripts:/opt/airflow/scripts
+    - ${AIRFLOW_PROJ_DIR:-.}/airflow.cfg:/opt/airflow/airflow.cfg
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -249,6 +259,8 @@ services:
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
       _PIP_ADDITIONAL_REQUIREMENTS: ''
+      DW_LOGIN: admin
+      DW_PASSWORD: admin
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
