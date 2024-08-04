@@ -61,6 +61,26 @@ services:
       - 5433:5433
       - 5432:5433
 
+  airflow-init-conn:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        chmod u+x /sources/scripts/create_connection.sh
+        bash /sources/scripts/create_connection.sh
+    environment:
+      <<: *airflow-common-env
+      DW_LOGIN: admin
+      DW_PASSWORD: admin
+    user: "0:0"
+    volumes:
+      - ${AIRFLOW_PROJ_DIR:-.}:/sources
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
   postgres:
     image: postgres:13
     environment:
@@ -200,8 +220,6 @@ services:
           echo
         fi
         mkdir -p /sources/logs /sources/dags /sources/plugins
-        chmod u+x /sources/scripts/create_connection.sh
-        bash /sources/scripts/create_connection.sh
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
@@ -212,8 +230,6 @@ services:
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
       _PIP_ADDITIONAL_REQUIREMENTS: ''
-      DW_LOGIN: admin
-      DW_PASSWORD: admin
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
