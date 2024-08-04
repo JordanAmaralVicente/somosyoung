@@ -8,12 +8,16 @@ from airflow.exceptions import AirflowSkipException
 
 
 NO_RECORDS_FOUND_MESSAGE = 'Não foram encontrados valores!'
-
+DEFAULT_ID_AHOY = 1811657
 
 def get_max_id_ahoy(ti):
     cursor = PostgresHook(postgres_conn_id = 'data_warehouse').get_conn().cursor()
     cursor.execute('SELECT MAX(id_email_sending) FROM ft_email_sending;')
-    ti.xcom_push(key = 'max_id_ahoy', value = [v for v in cursor][0][0] + 1)
+    
+    result = [v for v in cursor][0][0]
+    max_id_ahoy = result + 1 if result else DEFAULT_ID_AHOY
+    
+    ti.xcom_push(key = 'max_id_ahoy', value = max_id_ahoy)
 
 
 def fetch_ahoy_viewer_ti_api(ti, **kwargs):
@@ -27,7 +31,7 @@ def fetch_ahoy_viewer_ti_api(ti, **kwargs):
 
 def mount_ft_email_sending_query(item):
    return [
-            'INSERT INTO ft_email_sending VALUES (%s, %s, %s, %s, %s) ON CONFLITCT (id_email_sending) DO NOTHING',
+            'INSERT INTO ft_email_sending VALUES (%s, %s, %s, %s, %s) ON CONFLICT (id_email_sending) DO NOTHING',
             (
                 int(item['id']),
                 int(item['id_campaign']),
@@ -114,7 +118,7 @@ with DAG(
             'headers': { 'Content-Type': 'application/json' },
             'body': {
                 'token': '{{ conn.ahoy_viewer_ti.extra_dejson.token }}',
-                'idahoy': '{{ task_instance.xcom_pull(task_ids="get_max_idahoy", key="max_id_ahoy", default = 1811657)}}'
+                'idahoy': '{{ task_instance.xcom_pull(task_ids="get_max_idahoy", key="max_id_ahoy")}}'
             }
         }
     )
