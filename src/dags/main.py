@@ -89,7 +89,7 @@ def load_data_into_data_warehouse(ti, mount_query_function):
 with DAG(
     dag_id = 'teste_pratico',
     start_date = datetime.now(),
-    schedule = '@once', # */10 * * * *
+    schedule_interval = '*/10 * * * *', # 
     default_args = {
         'retries': 5,
         'retry_delay': timedelta(minutes=1),
